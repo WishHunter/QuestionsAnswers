@@ -13,7 +13,7 @@ struct Question {
     let answers: [String]
     let correctAnswer: String
     
-    func createQuestions() -> [Question] {
+    static var createQuestions: [Question] {
         var questions: [Question] = []
         
         questions.append(Question(question: "Кто из этих философов в 1864 году написал музыку на стихи А.С. Пушкина «Заклинание» и «Зимний вечер»?",
