@@ -7,21 +7,35 @@
 
 import UIKit
 
+protocol GameControllerDelegate: AnyObject {
+    func didEndGame(lastGuestion: Int)
+}
+
 class GameController: UIViewController {
 
     @IBOutlet weak var questionLabel: UILabel!
     @IBOutlet weak var answersCollection: UICollectionView!
     
     let questions: [Question] = Question.createQuestions
-    var activeAnswerIndex = 0
+    private var countQuestions: Int?
+    private var lastQuestion: Int = 0
+    weak var gameDelegate: GameControllerDelegate?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        if GameSingleton.shared.gameSession != nil {
+            lastQuestion = GameSingleton.shared.gameSession?.activeAnswerIndex ?? 0
+        } else {
+            GameSingleton.shared.gameSession = GameSession()
+            gameDelegate = GameSingleton.shared.gameSession
+        }
+        
+        countQuestions = questions.count
+        
         answersCollection.delegate = self
         answersCollection.dataSource = self
-        
-        questionLabel.text = questions[activeAnswerIndex].question
+        questionLabel.text = questions[lastQuestion].question
     }
 }
 
@@ -43,18 +57,24 @@ extension GameController: UICollectionViewDataSource, UICollectionViewDelegate, 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "answerCell", for: indexPath) as! AnswerViewCell
         
-        cell.answer.text = questions[activeAnswerIndex].answers[indexPath.item]
+        cell.answer.text = questions[lastQuestion].answers[indexPath.item]
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if questions[activeAnswerIndex].answers[indexPath.item] == questions[activeAnswerIndex].correctAnswer,
-           activeAnswerIndex < (questions.count - 1) {
-            activeAnswerIndex += 1
-            questionLabel.text = questions[activeAnswerIndex].question
+        if questions[lastQuestion].answers[indexPath.item] == questions[lastQuestion].correctAnswer,
+           lastQuestion < (countQuestions ?? 1 - 1) {
+            lastQuestion += 1
+            questionLabel.text = questions[lastQuestion].question
             answersCollection.reloadData()
         } else {
+            gameDelegate?.didEndGame(lastGuestion: lastQuestion)
             dismiss(animated: true, completion: nil)
         }
+    }
+    
+    func finishGame() {
+        GameSingleton.shared.setResult(result: lastQuestion, count: countQuestions ?? lastQuestion)
+        GameSingleton.shared.endGame()
     }
 }
