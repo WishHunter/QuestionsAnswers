@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Statistic {
+struct Statistic: Codable {
     var date: Date
     var result: Int
 }

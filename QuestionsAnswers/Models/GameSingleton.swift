@@ -10,11 +10,21 @@ import Foundation
 final
 class GameSingleton {
     static let shared = GameSingleton()
-    private init() {}
     
-    var gameSession: GameSession?
+    var gameSession: GameSession? = nil
     var persent: Int = 0
-    var statistic: [Statistic] = []
+    var statistic: [Statistic] = [] {
+        didSet {
+            statisticCaretaker.save(stat: statistic)
+        }
+    }
+    private let statisticCaretaker = StatisticCaretaker()
+    
+    private init() {
+        statistic = statisticCaretaker.load()
+    }
+    
+    
     
     func setResult(result: Int, count: Int) {
         var intermediatePersent: Double = 0.0
