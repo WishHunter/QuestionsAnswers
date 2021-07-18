@@ -9,5 +9,10 @@ import Foundation
 
 struct Statistic: Codable {
     var date: Date
+    var dateLabel: String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd/MM/YYYY HH:mm"
+        return dateFormatter.string(from: date)
+    }
     var result: Int
 }
