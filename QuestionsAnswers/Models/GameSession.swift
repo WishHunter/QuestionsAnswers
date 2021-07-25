@@ -8,13 +8,13 @@
 import UIKit
 
 class GameSession {
-    var activeAnswerIndex: Int = 0
+    var activeAnswerIndex = Observable<Int>(0)
     var countQuestions: Int = Question.createQuestions.count
     var gameController: UIViewController?
 }
 
 extension GameSession: GameControllerDelegate {
-    func didEndGame(lastGuestion: Int) {
-        activeAnswerIndex = lastGuestion
+    func updateActiveAnswer(lastGuestion: Int) {
+        activeAnswerIndex.value = lastGuestion
     }
 }
